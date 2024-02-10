@@ -1,4 +1,4 @@
-
+from ramdomNumberGenerator import RandomArrayGenerator
 
 class SortingAlgorithm():
     def quickSort(self, array):
@@ -132,28 +132,36 @@ class SortingAlgorithm():
                     j -= 1
                 newArray[j + 1] = up
             return newArray
-        def bucketSortInternal(array):
-            if not array:
-                return array
-            minimum = min(array)
-            maximum = max(array)
-            slot_num = maximum - minimum + 1
-            newArray = [[] for _ in range(slot_num)]
-            for num in array:
-                newArray[num - minimum].append(num)
-            for i in range(slot_num):
-                newArray[i] = insertionSort(newArray[i])
-            k = 0
-            for i in range(slot_num):
-                for j in range(len(newArray[i])):
-                    array[k] = newArray[i][j]
-                    k += 1
-            return array
+
+        if not array:
+            return
+        minimum = min(array)
+        maximum = max(array)
+        multiplier = 0
+        if isinstance(array[0], int):
+            multiplier = 1
+        elif isinstance(array[0], float):
+            multiplier = int(max(array) * 10)
+        else:
+            ValueError("Unsupported datatype")
+
+        slot_num = int((maximum - minimum) * multiplier) + 1
+        newArray = [[] for _ in range(slot_num)]
+        for num in array:
+            newArray[int((num - minimum) * multiplier)].append(num)
+        for i in range(slot_num):
+            newArray[i] = insertionSort(newArray[i])
+        k = 0
+        for i in range(slot_num):
+            for j in range(len(newArray[i])):
+                array[k] = newArray[i][j]
+                k += 1
+
 
     def timSort(self, array):
         def calculateMinRun(arrayLength):
             run = 0
-            while arrayLength >= 32:
+            while arrayLength >= 8:
                 run |= arrayLength & 1
                 arrayLength >>= 1
             return arrayLength + run
@@ -168,49 +176,58 @@ class SortingAlgorithm():
         def merge(array, left, mid, right):
             leftArrayLength = mid - left + 1
             rightArrayLength = right - mid
-            left = []
-            right = []
+            leftArray = []
+            rightArray = []
             for i in range(0, leftArrayLength):
-                left.append(array[left + i])
+                leftArray.append(array[left+i])
             for i in range(0, rightArrayLength):
-                right.append(array[mid + 1 + i])
+                rightArray.append(array[mid + 1 + i])
 
             i, j, k = 0, 0, left
 
             while i < leftArrayLength and j < rightArrayLength:
-                if left[i] <= right[j]:
-                    array[k] = left[i]
+                if leftArray[i] <= rightArray[j]:
+                    array[k] = leftArray[i]
                     i += 1
                 else:
-                    array[k] = right[j]
+                    array[k] = rightArray[j]
                     j += 1
                 k += 1
 
             while i < leftArrayLength:
-                array[k] = left[i]
+                array[k] = leftArray[i]
                 k += 1
                 i += 1
 
-            while j < leftArrayLength:
-                array[k] = right[j]
+            while j < rightArrayLength:
+                array[k] = rightArray[j]
                 k += 1
                 j += 1
 
 
-            arrayLength = len(array)
-            minRun = calculateMinRun(arrayLength)
+        arrayLength = len(array)
+        minRun = calculateMinRun(arrayLength)
 
-            for start in range(0, arrayLength, minRun):
-                end = min(start + minRun - 1, arrayLength - 1)
-                insertionSort(array, start, end)
+        for start in range(0, arrayLength, minRun):
+            end = min(start + minRun - 1, arrayLength - 1)
+            insertionSort(array, start, end)
 
-            size = minRun
-            while size < arrayLength:
+        size = minRun
+        while size < arrayLength:
 
-                for left in range(0, arrayLength, 2 * size):
-                    mid = min(arrayLength - 1, left + size - 1)
-                    right = min((left + 2 * size - 1), (arrayLength - 1))
-                    if mid < right:
-                        merge(array, left, mid, right)
+            for left in range(0, arrayLength, 2 * size):
+                mid = min(arrayLength - 1, left + size - 1)
+                right = min((left + 2 * size - 1), (arrayLength - 1))
+                if mid < right:
+                    merge(array, left, mid, right)
 
-                size = 2 * size
+            size = 2 * size
+
+
+if __name__=="__main__":
+    arrayGenerator = RandomArrayGenerator()
+    algorithm = SortingAlgorithm()
+    array = arrayGenerator.nRandomByLogValues(10000)
+    algorithm.bucketSort(array)
+    array = arrayGenerator.nRandom(30000)
+    algorithm.bucketSort(array)

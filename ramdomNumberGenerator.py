@@ -59,4 +59,4 @@ class RandomArrayGenerator:
 
 if __name__=="__main__":
     randomArrayGenerator = RandomArrayGenerator()
-    print(randomArrayGenerator.nRandomUpToNCube(100000))
+    print(randomArrayGenerator.nRandomSwappedLogNBy2(20))
